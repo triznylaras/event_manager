@@ -16,8 +16,6 @@ def legislators_by_zipcode(zip)
       levels: 'country',
       roles: ['legislatorUpperBody', 'legislatorLowerBody']
     ).officials
-    # legislator_names = legislators.map(&:name)
-    # legislator_names.join(", ")
   rescue
     'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
   end
@@ -33,6 +31,17 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
+def clean_homephone(homephone)
+  homephone.gsub!(/[^\d]/, '')
+  if homephone.length == 10
+    homephone
+  elsif homephone.length == 11 && homephone[0] == 1
+    homephone[1..10]
+  else
+    puts 'Bad number'
+  end
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -41,21 +50,18 @@ contents = CSV.open(
   header_converters: :symbol
 )
 
-template_letter = File.read('form_letter.erb')
-erb_template = ERB.new template_letter
-
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
+
+  homephone = clean_homephone(row[:homephone])
 
   zipcode = clean_zipcode(row[:zipcode])
 
   legislators = legislators_by_zipcode(zipcode)
 
-  form_letter = erb_template.result(binding)
+  puts "#{id} #{name} #{homephone} #{zipcode}"
+  # form_letter = erb_template.result(binding)
 
-  save_thank_you_letter(id, form_letter)
-  
-  # puts "#{name} #{zipcode} #{legislators}"
-  # puts form_letter
+  # save_thank_you_letter(id, form_letter)
 end
