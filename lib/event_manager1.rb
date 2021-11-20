@@ -42,9 +42,19 @@ def clean_homephone(homephone)
   end
 end
 
-def time_targeting(array)
+def count_freq(array)
   array.max_by { |a| array.count(a) }
 end
+
+cal = {
+  0 => 'sunday',
+  1 => 'monday',
+  2 => 'tuesday',
+  3 => 'wednesday',
+  4 => 'thursday',
+  5 => 'friday',
+  6 => 'saturday'
+}
 
 puts 'EventManager initialized.'
 
@@ -60,6 +70,7 @@ erb_template = ERB.new template_letter
 
 content_size -= 1
 hour_of_day = Array.new(content_size)
+day_of_week = Array.new(content_size)
 
 count = 0
 contents.each do |row|
@@ -72,11 +83,12 @@ contents.each do |row|
   reg_date = row[:regdate]
   parse_regdate = DateTime.strptime(reg_date,"%m/%d/%y %H:%M")
   hour_of_day[count] = parse_regdate.hour
+  day_of_week[count] = parse_regdate.wday
   count += 1
 
   form_letter = erb_template.result(binding)
   save_thank_you_letter(id, form_letter)
 end
 
-# puts "#{id} #{name}"
-puts "Most active hour is : #{time_targeting(hour_of_day)}"
+puts "Most active hour is : #{count_freq(hour_of_day)}"
+puts "Most active day is : #{cal[count_freq(day_of_week)]}"
