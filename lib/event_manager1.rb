@@ -38,8 +38,12 @@ def clean_homephone(homephone)
   elsif homephone.length == 11 && homephone[0] == 1
     homephone[1..10]
   else
-    puts 'Bad number'
+    'Bad number'
   end
+end
+
+def time_targeting(array)
+  array.max_by { |a| array.count(a) }
 end
 
 puts 'EventManager initialized.'
@@ -49,10 +53,15 @@ contents = CSV.open(
   headers: true,
   header_converters: :symbol
 )
+content_size = CSV.read('event_attendees.csv').length
 
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+content_size -= 1
+hour_of_day = Array.new(content_size)
+
+count = 0
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
@@ -60,8 +69,14 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   legislators = legislators_by_zipcode(zipcode)
 
-  # puts "#{id} #{name} #{homephone} #{zipcode}"
-  form_letter = erb_template.result(binding)
+  reg_date = row[:regdate]
+  parse_regdate = DateTime.strptime(reg_date,"%m/%d/%y %H:%M")
+  hour_of_day[count] = parse_regdate.hour
+  count += 1
 
+  form_letter = erb_template.result(binding)
   save_thank_you_letter(id, form_letter)
 end
+
+# puts "#{id} #{name}"
+puts "Most active hour is : #{time_targeting(hour_of_day)}"
