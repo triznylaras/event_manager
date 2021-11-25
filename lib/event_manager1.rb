@@ -6,19 +6,15 @@ def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
 end
 
+civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
 def legislators_by_zipcode(zip)
-  civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
-  civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
-
-  begin
-    civic_info.representative_info_by_address(
-      address: zip,
-      levels: 'country',
-      roles: ['legislatorUpperBody', 'legislatorLowerBody']
-    ).officials
-  rescue
-    'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
-  end
+  civic_info.representative_info_by_address(
+    address: zip, levels: 'country',
+    roles: %w[legislatorUpperBody legislatorLowerBody]
+  ).officials
+rescue StandardError
+  'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
 end
 
 def save_thank_you_letter(id, form_letter)
@@ -26,20 +22,15 @@ def save_thank_you_letter(id, form_letter)
 
   filename = "output/thanks_#{id}.html"
 
-  File.open(filename, 'w') do |file|
-    file.puts form_letter
-  end
+  File.open(filename, 'w') { |file| file.puts form_letter }
 end
 
 def clean_homephone(homephone)
   homephone.gsub!(/[^\d]/, '')
-  if homephone.length == 10
-    homephone
-  elsif homephone.length == 11 && homephone[0] == 1
-    homephone[1..10]
-  else
-    'Bad number'
-  end
+  return homephone if homephone.length == 10
+  return homephone[1..10] if homephone.length == 11 && homephone[0] == 1
+
+  'Bad number'
 end
 
 def count_freq(array)
@@ -81,7 +72,7 @@ contents.each do |row|
   legislators = legislators_by_zipcode(zipcode)
 
   reg_date = row[:regdate]
-  parse_regdate = DateTime.strptime(reg_date,"%m/%d/%y %H:%M")
+  parse_regdate = DateTime.strptime(reg_date, '%m/%d/%y %H:%M')
   hour_of_day[count] = parse_regdate.hour
   day_of_week[count] = parse_regdate.wday
   count += 1
