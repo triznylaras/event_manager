@@ -6,15 +6,19 @@ def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
 end
 
-civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
-civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
 def legislators_by_zipcode(zip)
-  civic_info.representative_info_by_address(
+  civic_info_service.representative_info_by_address(
     address: zip, levels: 'country',
     roles: %w[legislatorUpperBody legislatorLowerBody]
   ).officials
 rescue StandardError
   'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
+end
+
+def civic_info_service
+  civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+  civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
+  civic_info
 end
 
 def save_thank_you_letter(id, form_letter)
