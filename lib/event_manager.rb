@@ -1,10 +1,8 @@
-puts 'Event Manager Initialized!'
+# frozen_string_literal: true
 
-lines = File.readlines('event_attendees.csv')
-lines.each_with_index do |line, index|
-  next if index.zero?
+require_relative "event_manager/version"
 
-  columns = line.split(',')
-  name = columns[2]
-  p name
+module EventManager
+  class Error < StandardError; end
+  # Your code goes here...
 end
