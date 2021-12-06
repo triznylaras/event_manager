@@ -4,17 +4,44 @@ require 'erb'
 
 class Main
   def initialize
-    @contents = CSV.open(
-      'event_attendees.csv',
-      headers: true,
-      header_converters: :symbol
-    )
     @content_size = CSV.read('event_attendees.csv').length
     template_letter = File.read('form_letter.erb')
     @erb_template = ERB.new template_letter
     @hour_of_day = Array.new(@content_size)
     @day_of_week = Array.new(@content_size)
-    process_content
+  end
+
+  def process
+    @content_size -= 1
+
+    @data_count = 0
+    contents.each do |row|
+      id = row[0]
+      name = row[:first_name]
+      @homephone = clean_homephone(row[:homephone])
+      @zipcode = clean_zipcode(row[:zipcode])
+      legislators = legislators_by_zipcode(@zipcode)
+      @data_count += 1
+      reg_date = parse_date(row[:regdate])
+      form_letter = @erb_template.result(binding)
+      save_thank_you_letter(id, form_letter)
+    end
+    result
+  end
+
+  def result
+    puts "Most active hour is : #{count_freq(@hour_of_day)}"
+    puts "Most active day is : #{parse_day[count_freq(@day_of_week)]}"
+  end
+
+  private
+
+  def contents
+    CSV.open(
+      'event_attendees.csv',
+      headers: true,
+      header_converters: :symbol
+    )
   end
 
   def clean_zipcode(zipcode)
@@ -73,34 +100,6 @@ class Main
     @hour_of_day[@data_count] = parse_regdate.hour
     @day_of_week[@data_count] = parse_regdate.wday
   end
-
-  def content_data(row)
-    # name = row[:first_name]
-    @homephone = clean_homephone(row[:homephone])
-    zipcode = clean_zipcode(row[:zipcode])
-    @legislators = legislators_by_zipcode(zipcode)
-  end
-
-  puts 'EventManager initialized.'
-
-  def process_content
-    @content_size -= 1
-
-    @data_count = 0
-    @contents.each do |row|
-      id = row[0]
-      content_data(row)
-      reg_date = parse_date(row[:regdate])
-      @data_count += 1
-
-      form_letter = @erb_template.result(binding)
-      save_thank_you_letter(id, form_letter)
-    end
-    print_content_info
-  end
-
-  def print_content_info
-    puts "Most active hour is : #{count_freq(@hour_of_day)}"
-    puts "Most active day is : #{parse_day[count_freq(@day_of_week)]}"
-  end
 end
+
+Main.new.process
