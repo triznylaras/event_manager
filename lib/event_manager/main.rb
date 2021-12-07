@@ -23,15 +23,12 @@ class Main
       @zipcode = clean_zipcode(row[:zipcode])
       legislators = legislators_by_zipcode(@zipcode)
       data_count += 1
-      # binding.pry
       reg_date = parse_date(row[:regdate])
-      time_data(reg_date, data_count)
+      hour_list(reg_date, data_count)
+      day_list(reg_date, data_count)
       form_letter = @erb_template.result(binding)
       save_thank_you_letter(id, form_letter)
-
-      # puts @homephone
     end
-    # binding.pry
     result
   end
 
@@ -105,8 +102,11 @@ class Main
     DateTime.strptime(date, '%m/%d/%y %H:%M')
   end
 
-  def time_data(date, data_count)
+  def hour_list(date, data_count)
     @hour_of_day[data_count] = date.hour
+  end
+
+  def day_list(date, data_count)
     @day_of_week[data_count] = date.wday
   end
 end
