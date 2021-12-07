@@ -15,20 +15,23 @@ class Main
   def process
     @content_size -= 1
 
-    @data_count = 0
+    data_count = 0
     contents.each do |row|
       id = row[0]
       name = row[:first_name]
       @homephone = clean_homephone(row[:homephone])
       @zipcode = clean_zipcode(row[:zipcode])
       legislators = legislators_by_zipcode(@zipcode)
-      @data_count += 1
+      data_count += 1
+      # binding.pry
       reg_date = parse_date(row[:regdate])
+      time_data(reg_date, data_count)
       form_letter = @erb_template.result(binding)
       save_thank_you_letter(id, form_letter)
 
       # puts @homephone
     end
+    # binding.pry
     result
   end
 
@@ -99,9 +102,12 @@ class Main
   end
 
   def parse_date(date)
-    parse_regdate = DateTime.strptime(date, '%m/%d/%y %H:%M')
-    @hour_of_day[@data_count] = parse_regdate.hour
-    @day_of_week[@data_count] = parse_regdate.wday
+    DateTime.strptime(date, '%m/%d/%y %H:%M')
+  end
+
+  def time_data(date, data_count)
+    @hour_of_day[data_count] = date.hour
+    @day_of_week[data_count] = date.wday
   end
 end
 

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry-byebug'
 
 describe Main do
   let(:main) { Main.new }
@@ -55,6 +56,14 @@ describe Main do
     it "return 'Bad number' if number is more than 11 digits" do
       homephone = 414-520-50001
       expect(main.send(:clean_homephone, homephone.to_s)).to eq('Bad number')
+    end
+  end
+
+  describe '#parse_date' do
+    it "return formatted date" do
+      date = DateTime.new(2009, 2, 2, 11, 29)
+      # binding.pry
+      expect(main.send(:parse_date).with(date)).to eq()
     end
   end
 end
