@@ -77,7 +77,7 @@ class Main
   def clean_homephone(phone)
     phone.gsub!(/[^\d]/, '')
     return phone if phone.length == 10
-    return phone[1..10] if phone.length == 11 && phone[0] == 1
+    return phone[1..10] if phone.length == 11 && phone[0] == '1'
 
     'Bad number'
   end
