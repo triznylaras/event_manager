@@ -1,6 +1,7 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'pry-byebug'
 
 class Main
   def initialize
@@ -25,6 +26,8 @@ class Main
       reg_date = parse_date(row[:regdate])
       form_letter = @erb_template.result(binding)
       save_thank_you_letter(id, form_letter)
+
+      # puts @homephone
     end
     result
   end
