@@ -60,10 +60,27 @@ describe Main do
   end
 
   describe '#parse_date' do
-    it "return formatted date" do
-      date = DateTime.new(2009, 2, 2, 11, 29)
-      # binding.pry
-      expect(main.send(:parse_date).with(date)).to eq()
+    it 'return formatted date' do
+      result = DateTime.strptime('11/12/08 10:47', '%m/%d/%y %H:%M')
+      expect(main.send(:parse_date, '11/12/08 10:47')).to eq(result)
+    end
+  end
+
+  describe '#count_freq' do
+    it 'return most active hour from hour list' do
+      hour_list = [nil, 10, 13, 13, 19, 11, 15, 16, 17, 1, 16, 18, 21, 11, 13, 20, 19, 21, 16, 20]
+      expect(main.send(:count_freq, hour_list)).to eq(13)
+    end
+
+    it 'return most active day from day list' do
+      day_list = [1, 1, 3, 4, 5, 6, 2, 1, 1]
+      expect(main.send(:count_freq, day_list)).to eq(1)
+    end
+  end
+
+  describe '#parse_day' do
+    it "return day's name from integer" do
+      expect(main.send(:parse_day)[1]).to eq('monday')
     end
   end
 end
